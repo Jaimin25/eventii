@@ -12,6 +12,7 @@ export default function HeroComponent() {
   });
 
   useEffect(() => {
+    console.log(summaryData);
     async function fetchData() {
       try {
         const res = await fetch(

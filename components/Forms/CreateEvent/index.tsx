@@ -25,11 +25,15 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useState } from "react";
 
 const createEventFormSchema = z.object({
   eventName: z.string().min(2).max(50),
   description: z.string().min(2).max(50),
-  startTime: z.string().min(2).max(50),
+  startTime: z.date({
+    required_error: "A start time is required.",
+  }),
   date: z.date({
     required_error: "A date  is required.",
   }),
@@ -38,6 +42,8 @@ const createEventFormSchema = z.object({
 });
 
 export default function CreateJoinForm() {
+  const [isPending, setIsPending] = useState(false);
+
   const handleClick = () => {
     const duration = 5 * 1000;
     const animationEnd = Date.now() + duration;
@@ -72,7 +78,7 @@ export default function CreateJoinForm() {
     defaultValues: {
       eventName: "",
       description: "",
-      startTime: "",
+      startTime: undefined,
       date: undefined,
       hostEmail: "",
       place: "",
@@ -81,10 +87,18 @@ export default function CreateJoinForm() {
 
   async function onSubmit(values: z.infer<typeof createEventFormSchema>) {
     const id = toast.loading("Creating event...");
+    setIsPending(true);
+    const formattedStartTime = format(new Date(values.startTime), "hh:mm a");
+
+    const updatedValues = {
+      ...values,
+      date: format(new Date(values.date), "dd-MM-yyyy"),
+      startTime: formattedStartTime,
+    };
     try {
       const res = await fetch("/api/events/create", {
         method: "POST",
-        body: JSON.stringify(values),
+        body: JSON.stringify(updatedValues),
       });
       const data = await res.json();
       if (data.status === 200) {
@@ -92,15 +106,38 @@ export default function CreateJoinForm() {
           id,
         });
         handleClick();
+        setIsPending(false);
       } else {
         toast.error("Failed to create event", {
           id,
         });
+        setIsPending(false);
       }
     } catch (error) {
       console.error(error);
     }
   }
+
+  function handleTimeChange(type: "hour" | "minute" | "ampm", value: string) {
+    const currentDate = createEventForm.getValues("startTime") || new Date();
+    const newDate = new Date(currentDate);
+
+    if (type === "hour") {
+      const hour = parseInt(value, 10);
+      newDate.setHours(newDate.getHours() >= 12 ? hour + 12 : hour);
+    } else if (type === "minute") {
+      newDate.setMinutes(parseInt(value, 10));
+    } else if (type === "ampm") {
+      const hours = newDate.getHours();
+      if (value === "AM" && hours >= 12) {
+        newDate.setHours(hours - 12);
+      } else if (value === "PM" && hours < 12) {
+        newDate.setHours(hours + 12);
+      }
+    }
+    createEventForm.setValue("startTime", newDate);
+  }
+
   return (
     <Form {...createEventForm}>
       <form
@@ -114,7 +151,7 @@ export default function CreateJoinForm() {
             <FormItem>
               <FormLabel>Event name</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Enter event name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +164,10 @@ export default function CreateJoinForm() {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input
+                  placeholder="Enter a short description for the event"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -137,11 +177,113 @@ export default function CreateJoinForm() {
           control={createEventForm.control}
           name="startTime"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Start Time</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
+            <FormItem className="flex flex-col">
+              <FormLabel>Select time (12h)</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "hh:mm aa")
+                      ) : (
+                        <span>hh:mm aa</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <div className="sm:flex">
+                    <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
+                      <ScrollArea className="w-64 sm:w-auto">
+                        <div className="flex sm:flex-col p-2">
+                          {Array.from({ length: 12 }, (_, i) => i + 1)
+                            .reverse()
+                            .map((hour) => (
+                              <Button
+                                key={hour}
+                                size="icon"
+                                variant={
+                                  field.value &&
+                                  field.value.getHours() % 12 === hour % 12
+                                    ? "default"
+                                    : "ghost"
+                                }
+                                className="sm:w-full shrink-0 aspect-square"
+                                onClick={() =>
+                                  handleTimeChange("hour", hour.toString())
+                                }
+                              >
+                                {hour}
+                              </Button>
+                            ))}
+                        </div>
+                        <ScrollBar
+                          orientation="horizontal"
+                          className="sm:hidden"
+                        />
+                      </ScrollArea>
+                      <ScrollArea className="w-64 sm:w-auto">
+                        <div className="flex sm:flex-col p-2">
+                          {Array.from({ length: 12 }, (_, i) => i * 5).map(
+                            (minute) => (
+                              <Button
+                                key={minute}
+                                size="icon"
+                                variant={
+                                  field.value &&
+                                  field.value.getMinutes() === minute
+                                    ? "default"
+                                    : "ghost"
+                                }
+                                className="sm:w-full shrink-0 aspect-square"
+                                onClick={() =>
+                                  handleTimeChange("minute", minute.toString())
+                                }
+                              >
+                                {minute.toString().padStart(2, "0")}
+                              </Button>
+                            )
+                          )}
+                        </div>
+                        <ScrollBar
+                          orientation="horizontal"
+                          className="sm:hidden"
+                        />
+                      </ScrollArea>
+                      <ScrollArea className="">
+                        <div className="flex sm:flex-col p-2">
+                          {["AM", "PM"].map((ampm) => (
+                            <Button
+                              key={ampm}
+                              size="icon"
+                              variant={
+                                field.value &&
+                                ((ampm === "AM" &&
+                                  field.value.getHours() < 12) ||
+                                  (ampm === "PM" &&
+                                    field.value.getHours() >= 12))
+                                  ? "default"
+                                  : "ghost"
+                              }
+                              className="sm:w-full shrink-0 aspect-square"
+                              onClick={() => handleTimeChange("ampm", ampm)}
+                            >
+                              {ampm}
+                            </Button>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <FormMessage />
             </FormItem>
           )}
@@ -194,7 +336,7 @@ export default function CreateJoinForm() {
             <FormItem>
               <FormLabel>Place</FormLabel>
               <FormControl>
-                <Input placeholder="Place" {...field} />
+                <Input placeholder="Enter event location" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -207,13 +349,15 @@ export default function CreateJoinForm() {
             <FormItem>
               <FormLabel>Host Email</FormLabel>
               <FormControl>
-                <Input placeholder="hostEmail" {...field} />
+                <Input placeholder="Enter your mail" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          Submit
+        </Button>
       </form>
     </Form>
   );
