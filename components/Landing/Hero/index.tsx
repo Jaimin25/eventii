@@ -1,32 +1,13 @@
 "use client";
 
+import { useEventContext } from "@/app/_providers/events-provider";
 import { Button } from "@/components/ui/button";
 import NumberTicker from "@/components/ui/number-ticker";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 export default function HeroComponent() {
-  const [summaryData, setSummaryData] = useState({
-    totalEvents: 1,
-    totalParticipants: 1,
-  });
-
-  useEffect(() => {
-    console.log(summaryData);
-    async function fetchData() {
-      try {
-        const res = await fetch(
-          "https://script.google.com/macros/s/AKfycbx6-ULkGCEqLpoKTldfwpozSFdpxRUfTzxWgw5ZX1xlrPbS80ZeE6mCN77mNYe6iMcr/exec?action=getSummary"
-        );
-        const data = await res.json();
-        setSummaryData(data);
-      } catch (error) {
-        console.error("Error fetching summary data:", error);
-      }
-    }
-
-    fetchData();
-  }, []);
+  const { eventSummary } = useEventContext();
 
   return (
     <section
@@ -60,7 +41,7 @@ export default function HeroComponent() {
               <div className="text-3xl font-bold">
                 <NumberTicker
                   className="text-white"
-                  value={summaryData.totalEvents}
+                  value={eventSummary ? eventSummary.totalEvents : 1}
                 />
               </div>
               <div className="text-sm ">Active Events</div>
@@ -69,7 +50,7 @@ export default function HeroComponent() {
               <div className="text-3xl font-bold">
                 <NumberTicker
                   className="text-white"
-                  value={summaryData.totalParticipants}
+                  value={eventSummary ? eventSummary.totalParticipants : 1}
                 />
               </div>
               <div className="text-sm ">Participants</div>
