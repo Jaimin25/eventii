@@ -17,6 +17,7 @@ export interface EventType {
   Description: string;
   Place: string;
   Start_Time: string;
+  Event_Type: string;
 }
 
 interface EventSummaryType {
@@ -43,6 +44,9 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
         const res = await fetch("api/events/getEvents");
         const data = await res.json();
         if (data.status === 200) {
+          data.message.sort((a: EventType, b: EventType) => {
+            return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+          });
           setEvents(data.message);
         } else {
           toast.error("Error fetching events");

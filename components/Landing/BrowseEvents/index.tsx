@@ -16,7 +16,7 @@ export default function BrowserEventsComponent() {
         </div>
 
         <div className="w-full md:px-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <EventCards />
+          <EventCards display={6} />
         </div>
         <Button className="mt-8">Load More Events</Button>
       </div>
