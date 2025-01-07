@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { UserRound } from "lucide-react";
 import React from "react";
 
-export default function EventCards({ display }: { display: number }) {
+export default function EventCards({ display }: { display: number | null }) {
   const { events } = useEventContext();
 
   if (typeof events === "string" && events === "loading") {
@@ -47,42 +47,50 @@ export default function EventCards({ display }: { display: number }) {
       </Card>
     ));
   }
+
   return (
     <>
       {Array.isArray(events) &&
-        events.slice(0, display).map((event, index) => (
-          <Card className="hover:shadow-md transition-shadow" key={index}>
-            <CardHeader>
-              <CardDescription className="justify-between flex">
-                <span className="text-blue-500 text-sm font-semibold">
-                  {event.Event_Type}
-                </span>
+        (display ? events.slice(0, display) : events).map((event, index) => {
+          const formattedDate = format(new Date(event.Date), "MMM dd, yyyy");
+          const formattedTime = format(new Date(event.Start_Time), "hh:mm a");
 
-                <span className="bg-blue-100 flex items-center gap-1 justify-center text-blue-600 px-3 py-1 rounded-full text-sm">
-                  <UserRound size={20} />
-                  <span>{event.participantCount}</span>
-                </span>
-              </CardDescription>
-              <CardTitle>
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold mt-1">{event.Event_Name}</h3>
+          return (
+            <Card className="hover:shadow-md transition-shadow" key={index}>
+              <CardHeader>
+                <CardDescription className="justify-between flex">
+                  <span className="text-blue-500 text-sm font-semibold">
+                    {event.Event_Type}
+                  </span>
+
+                  <span className="bg-blue-100 flex items-center gap-1 justify-center text-blue-600 px-3 py-1 rounded-full text-sm">
+                    <UserRound size={20} />
+                    <span>{event.participantCount}</span>
+                  </span>
+                </CardDescription>
+                <CardTitle>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold mt-1">
+                      {event.Event_Name}
+                    </h3>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">{event.Description}</p>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <div className="text-gray-500 text-sm">
+                  <i className="fas fa-calendar"></i>
+                  {formattedDate} {formattedTime}
                 </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">{event.Description}</p>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="text-gray-500 text-sm">
-                <i className="fas fa-calendar"></i>{" "}
-                {format(new Date(event.Date), "MMM dd, yyyy")}
-              </div>
-              <Button variant={"outline"} className="text-primary">
-                Join Event
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+                <Button variant={"outline"} className="text-primary">
+                  Join Event
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
     </>
   );
 }

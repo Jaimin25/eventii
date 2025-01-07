@@ -31,13 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main className="h-full">
-          <HeaderComponent />
-          <EventProvider>
+        <EventProvider>
+          <main className="h-full">
+            <HeaderComponent />
             <section className="pt-16 h-full items-center">{children}</section>
-          </EventProvider>
-          <Toaster />
-        </main>
+            <Toaster />
+          </main>
+        </EventProvider>
       </body>
     </html>
   );

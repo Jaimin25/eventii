@@ -30,7 +30,7 @@ export default function HeroComponent() {
                 Create Event
               </Button>
             </Link>
-            <Link href="">
+            <Link href="/events/browse">
               <Button className="rounded-md bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-all duration-300">
                 Browse Events
               </Button>

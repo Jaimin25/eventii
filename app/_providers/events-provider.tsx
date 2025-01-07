@@ -29,6 +29,10 @@ interface EventSummaryType {
 interface EventContextType {
   events: EventType[] | string;
   eventSummary: EventSummaryType | undefined;
+  setEvents: React.Dispatch<React.SetStateAction<EventType[] | string>>;
+  setEventSummary: React.Dispatch<
+    React.SetStateAction<EventSummaryType | undefined>
+  >;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -41,12 +45,25 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
     async function fetchEvents() {
       try {
         setEvents("loading");
-        const res = await fetch("api/events/getEvents");
+        const res = await fetch("/api/events/getEvents");
         const data = await res.json();
         if (data.status === 200) {
           data.message.sort((a: EventType, b: EventType) => {
-            return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+            // Compare Dates
+            const dateA = new Date(a.Date).getTime();
+            const dateB = new Date(b.Date).getTime();
+
+            if (dateA !== dateB) {
+              return dateA - dateB; // Sort by Date if they are different
+            }
+
+            // If Dates are the same, compare Start_Time
+            const timeA = new Date(`${a.Start_Time}`).getTime();
+            const timeB = new Date(`${b.Start_Time}`).getTime();
+
+            return timeA - timeB; // Sort by Start_Time if Dates are the same
           });
+
           setEvents(data.message);
         } else {
           toast.error("Error fetching events");
@@ -59,7 +76,7 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
 
     async function fetchData() {
       try {
-        const res = await fetch("api/events/getSummary");
+        const res = await fetch("/api/events/getSummary");
         const data = await res.json();
         if (data.status === 200) {
           setEventSummary(data.message);
@@ -77,7 +94,9 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <EventContext.Provider value={{ events, eventSummary }}>
+    <EventContext.Provider
+      value={{ events, eventSummary, setEvents, setEventSummary }}
+    >
       {children}
     </EventContext.Provider>
   );

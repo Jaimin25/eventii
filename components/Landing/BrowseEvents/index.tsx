@@ -1,5 +1,6 @@
 import EventCards from "@/components/Cards/EventCards";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import React from "react";
 
 export default function BrowserEventsComponent() {
@@ -18,7 +19,9 @@ export default function BrowserEventsComponent() {
         <div className="w-full md:px-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <EventCards display={6} />
         </div>
-        <Button className="mt-8">Load More Events</Button>
+        <Link href={"/events/browse"}>
+          <Button className="mt-8">Load More Events</Button>
+        </Link>
       </div>
     </section>
   );

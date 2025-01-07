@@ -27,10 +27,13 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useState } from "react";
+import { EventType, useEventContext } from "@/app/_providers/events-provider";
+import { useRouter } from "next/navigation";
 
 const createEventFormSchema = z.object({
   eventName: z.string().min(2).max(50),
-  description: z.string().min(2).max(50),
+  description: z.string().min(2).max(100),
+  eventType: z.string().min(2).max(50),
   startTime: z.date({
     required_error: "A start time is required.",
   }),
@@ -42,7 +45,9 @@ const createEventFormSchema = z.object({
 });
 
 export default function CreateJoinForm() {
+  const { setEvents, setEventSummary } = useEventContext();
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
   const handleClick = () => {
     const duration = 5 * 1000;
@@ -78,6 +83,7 @@ export default function CreateJoinForm() {
     defaultValues: {
       eventName: "",
       description: "",
+      eventType: "",
       startTime: undefined,
       date: undefined,
       hostEmail: "",
@@ -92,9 +98,10 @@ export default function CreateJoinForm() {
 
     const updatedValues = {
       ...values,
-      date: format(new Date(values.date), "dd-MM-yyyy"),
+      date: format(new Date(values.date), "yyyy-MM-dd"),
       startTime: formattedStartTime,
     };
+
     try {
       const res = await fetch("/api/events/create", {
         method: "POST",
@@ -107,6 +114,44 @@ export default function CreateJoinForm() {
         });
         handleClick();
         setIsPending(false);
+        setEvents((prev) => {
+          if (typeof prev === "string") return prev;
+          return [
+            ...prev,
+            {
+              Event_ID: data.message.Event_ID,
+              Event_Name: updatedValues.eventName,
+              Date: updatedValues.date,
+              participantCount: 0,
+              Description: updatedValues.description,
+              Place: updatedValues.place,
+              Start_Time: new Date(values.startTime).toISOString(),
+              Event_Type: updatedValues.eventType,
+            },
+          ].sort((a: EventType, b: EventType) => {
+            // Compare Dates
+            const dateA = new Date(a.Date).getTime();
+            const dateB = new Date(b.Date).getTime();
+
+            if (dateA !== dateB) {
+              return dateA - dateB; // Sort by Date if they are different
+            }
+
+            // If Dates are the same, compare Start_Time
+            const timeA = new Date(`${a.Start_Time}`).getTime();
+            const timeB = new Date(`${b.Start_Time}`).getTime();
+
+            return timeA - timeB; // Sort by Start_Time if Dates are the same
+          });
+        });
+        setEventSummary((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalEvents: prev.totalEvents + 1,
+          };
+        });
+        router.push("/events/browse");
       } else {
         toast.error("Failed to create event", {
           id,
@@ -168,6 +213,19 @@ export default function CreateJoinForm() {
                   placeholder="Enter a short description for the event"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="eventType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Type</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter event type" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
