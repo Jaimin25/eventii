@@ -4,6 +4,7 @@ import "./globals.css";
 import { Constants } from "@/lib/constants";
 import HeaderComponent from "@/components/Layout/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { EventProvider } from "./_providers/events-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,9 @@ export default function RootLayout({
       >
         <main className="h-full">
           <HeaderComponent />
-          <section className="pt-16 h-full items-center">{children}</section>
+          <EventProvider>
+            <section className="pt-16 h-full items-center">{children}</section>
+          </EventProvider>
           <Toaster />
         </main>
       </body>
