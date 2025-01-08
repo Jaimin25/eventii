@@ -119,7 +119,7 @@ export default function CreateJoinForm() {
           return [
             ...prev,
             {
-              Event_ID: data.message.Event_ID,
+              Event_ID: data.message.eventId,
               Event_Name: updatedValues.eventName,
               Date: updatedValues.date,
               participantCount: 0,

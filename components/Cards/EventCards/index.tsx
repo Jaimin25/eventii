@@ -40,6 +40,7 @@ export default function EventCards({ display }: { display: number | null }) {
       return toast.error("Please provide a valid email address.");
     }
     setLoading(true);
+    console.log(event);
     try {
       const res = await fetch("/api/events/join", {
         method: "POST",
