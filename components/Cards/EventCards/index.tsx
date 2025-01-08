@@ -104,8 +104,10 @@ export default function EventCards({ display }: { display: number | null }) {
           <Skeleton className="text-blue-500 rounded-lg text-sm font-semibold w-2/3 h-5" />
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-          <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-24 h-5" />
-          <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-32 h-5" />
+          <div className="flex flex-col items-start xl:items-center xl:flex-row gap-2 w-full justify-evenly">
+            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-24 h-5" />
+            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-32 h-5" />
+          </div>
           <Button variant="outline" className="text-primary" disabled>
             Join Event
           </Button>
@@ -146,14 +148,16 @@ export default function EventCards({ display }: { display: number | null }) {
                 <p className="text-gray-600 mb-4">{event.Description}</p>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <div className="flex text-gray-500  gap-1 items-center justify-center">
-                  <MapPin className="stroke-primary" size={20} />
-                  <span>{event.Place}</span>
-                </div>
-                <div className="text-gray-500 text-sm flex gap-1 items-center justify-center">
-                  <CalendarClock size={20} className="stroke-primary" />
-                  <i className="fas fa-calendar"></i>
-                  {formattedDate} {formattedTime}
+                <div className="flex flex-col items-start gap-2 xl:items-center xl:flex-row w-full justify-evenly">
+                  <div className="flex text-gray-500  gap-1 items-center justify-center">
+                    <MapPin className="stroke-primary" size={20} />
+                    <span>{event.Place}</span>
+                  </div>
+                  <div className="text-gray-500 text-sm flex gap-1 items-center justify-center">
+                    <CalendarClock size={20} className="stroke-primary" />
+                    <i className="fas fa-calendar"></i>
+                    {formattedDate} {formattedTime}
+                  </div>
                 </div>
                 <Button
                   variant={"outline"}
