@@ -1,6 +1,7 @@
 import { Constants } from "@/lib/constants";
 import Link from "next/link";
 import React from "react";
+import MobileMenu from "./mobile-menu";
 
 export default function HeaderComponent() {
   return (
@@ -34,6 +35,7 @@ export default function HeaderComponent() {
               </button>
             </Link>
           </div>
+          <MobileMenu />
         </div>
       </nav>
     </header>
