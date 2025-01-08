@@ -1,6 +1,6 @@
 "use client";
 
-import { useEventContext } from "@/app/_providers/events-provider";
+import { EventType, useEventContext } from "@/app/_providers/events-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,8 +15,73 @@ import { format } from "date-fns";
 import { UserRound } from "lucide-react";
 import React from "react";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
 export default function EventCards({ display }: { display: number | null }) {
-  const { events } = useEventContext();
+  const { events, setEvents } = useEventContext();
+  const [dialogOpen, setOpenDialog] = React.useState(false);
+  const [event, setEvent] = React.useState<EventType | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [participantEmail, setParticipantEmail] = React.useState("");
+
+  const submitJoinEvent = async () => {
+    if (participantEmail === "" || !participantEmail.includes("@")) {
+      return toast.error("Please provide a valid email address.");
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/events/join", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventId: event?.Event_ID,
+          participantEmail,
+        }),
+      });
+
+      const response = await res.json();
+
+      if (response.message.success) {
+        toast.success("You have successfully joined the event.");
+        setOpenDialog(false);
+        setLoading(false);
+        setEvents((prevEvents) => {
+          if (typeof prevEvents === "string") {
+            return prevEvents;
+          }
+          return prevEvents.map((e) => {
+            if (e.Event_ID === event?.Event_ID) {
+              return {
+                ...e,
+                participantCount: e.participantCount + 1,
+              };
+            }
+            return e;
+          });
+        });
+      } else {
+        toast.error(response.message.message);
+        setLoading(false);
+      }
+    } catch (error) {
+      toast.error(
+        "An error occurred while joining the event." + (error as Error).message
+      );
+    }
+  };
 
   if (typeof events === "string" && events === "loading") {
     return Array.from({ length: 6 }, (_, i) => (
@@ -84,13 +149,58 @@ export default function EventCards({ display }: { display: number | null }) {
                   <i className="fas fa-calendar"></i>
                   {formattedDate} {formattedTime}
                 </div>
-                <Button variant={"outline"} className="text-primary">
+                <Button
+                  variant={"outline"}
+                  className="text-primary"
+                  onClick={() => {
+                    setParticipantEmail("");
+                    setOpenDialog(true);
+                    setEvent(event);
+                  }}
+                >
                   Join Event
                 </Button>
               </CardFooter>
             </Card>
           );
         })}
+      <Dialog open={dialogOpen} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Join {event?.Event_Name}?</DialogTitle>
+            <DialogDescription>
+              Please provide a valid email address to join the event.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <Input
+                type="email"
+                id="link"
+                placeholder="Enter you email address"
+                onChange={(e) => setParticipantEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button
+              type="submit"
+              onClick={() => submitJoinEvent()}
+              disabled={loading}
+            >
+              Join Event
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
