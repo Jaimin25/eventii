@@ -41,7 +41,13 @@ const createEventFormSchema = z.object({
     required_error: "A date  is required.",
   }),
   hostEmail: z.string().email(),
-  place: z.string().min(2).max(50),
+  houseNumber: z.string().min(2).max(50),
+  streetName: z.string().min(2).max(50),
+  landmark: z.string().min(2).max(50),
+  locality: z.string().min(2).max(50),
+  city: z.string().min(2).max(50),
+  state: z.string().min(2).max(50),
+  postalCode: z.string().min(2).max(50),
 });
 
 export default function CreateJoinForm() {
@@ -87,7 +93,13 @@ export default function CreateJoinForm() {
       startTime: undefined,
       date: undefined,
       hostEmail: "",
-      place: "",
+      houseNumber: "",
+      streetName: "",
+      landmark: "",
+      locality: "",
+      city: "",
+      state: "",
+      postalCode: "",
     },
   });
 
@@ -124,7 +136,13 @@ export default function CreateJoinForm() {
               Date: updatedValues.date,
               participantCount: 0,
               Description: updatedValues.description,
-              Place: updatedValues.place,
+              House_Number: updatedValues.houseNumber,
+              Street_Name: updatedValues.streetName,
+              Landmark: updatedValues.landmark,
+              Locality: updatedValues.locality,
+              City: updatedValues.city,
+              State: updatedValues.state,
+              Postal_Code: updatedValues.postalCode,
               Start_Time: new Date(values.startTime).toISOString(),
               Event_Type: updatedValues.eventType,
             },
@@ -389,12 +407,91 @@ export default function CreateJoinForm() {
         />
         <FormField
           control={createEventForm.control}
-          name="place"
+          name="houseNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Place</FormLabel>
+              <FormLabel>House Number/Area</FormLabel>
               <FormControl>
-                <Input placeholder="Enter event location" {...field} />
+                <Input placeholder="Enter house number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="streetName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Street Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter street name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="landmark"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Landmark</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter landmark" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="locality"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Locality</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter locality" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter city" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={createEventForm.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>State</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter state" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={createEventForm.control}
+          name="postalCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Postal Code</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter postal code" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

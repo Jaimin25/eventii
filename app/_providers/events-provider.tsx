@@ -15,7 +15,13 @@ export interface EventType {
   Date: string;
   participantCount: number;
   Description: string;
-  Place: string;
+  House_Number: string;
+  Street_Name: string;
+  Landmark: string;
+  Locality: string;
+  City: string;
+  State: string;
+  Postal_Code: string;
   Start_Time: string;
   Event_Type: string;
 }

@@ -17,7 +17,6 @@ import React from "react";
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -40,7 +39,7 @@ export default function EventCards({ display }: { display: number | null }) {
       return toast.error("Please provide a valid email address.");
     }
     setLoading(true);
-    console.log(event);
+
     try {
       const res = await fetch("/api/events/join", {
         method: "POST",
@@ -103,12 +102,12 @@ export default function EventCards({ display }: { display: number | null }) {
         <CardContent className="space-y-2">
           <Skeleton className="text-blue-500 rounded-lg text-sm font-semibold w-3/4 h-5" />
           <Skeleton className="text-blue-500 rounded-lg text-sm font-semibold w-2/3 h-5" />
+          <div className="flex flex-col items-start  gap-2 w-full justify-evenly">
+            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-80 h-5" />
+            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-60 h-5" />
+          </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-          <div className="flex flex-col items-start xl:items-center xl:flex-row gap-2 w-full justify-evenly">
-            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-24 h-5" />
-            <Skeleton className="text-blue-500 bg-blue-100 rounded-lg text-sm font-semibold w-32 h-5" />
-          </div>
           <Button variant="outline" className="text-primary" disabled>
             Join Event
           </Button>
@@ -147,12 +146,10 @@ export default function EventCards({ display }: { display: number | null }) {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">{event.Description}</p>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <div className="flex flex-col items-start gap-2 xl:items-center xl:flex-row w-full justify-evenly">
+                <div className="flex flex-col items-start gap-2 w-full justify-evenly">
                   <div className="flex text-gray-500  gap-1 items-center justify-center">
                     <MapPin className="stroke-primary" size={20} />
-                    <span>{event.Place}</span>
+                    <span>{`${event.House_Number}, ${event.Street_Name}, ${event.Landmark}, ${event.Locality}, ${event.City}, ${event.State} - ${event.Postal_Code}`}</span>
                   </div>
                   <div className="text-gray-500 text-sm flex gap-1 items-center justify-center">
                     <CalendarClock size={20} className="stroke-primary" />
@@ -160,9 +157,11 @@ export default function EventCards({ display }: { display: number | null }) {
                     {formattedDate} {formattedTime}
                   </div>
                 </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
                 <Button
                   variant={"outline"}
-                  className="text-primary"
+                  className="text-white hover:text-white/50 bg-gradient-to-tr from-blue-500 to-red-600"
                   onClick={() => {
                     setParticipantEmail("");
                     setOpenDialog(true);
@@ -196,19 +195,23 @@ export default function EventCards({ display }: { display: number | null }) {
               />
             </div>
           </div>
-          <DialogFooter className="sm:justify-between">
+          <DialogFooter className="sm:justify-between  gap-2 md:gap-0">
             <Button
               type="submit"
               onClick={() => submitJoinEvent()}
               disabled={loading}
+              className="order-1"
             >
               Join Event
             </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close
-              </Button>
-            </DialogClose>
+            <Button
+              type="button"
+              variant="secondary"
+              className="m-0"
+              onClick={() => setOpenDialog(false)}
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

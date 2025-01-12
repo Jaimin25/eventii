@@ -26,12 +26,12 @@ export default function HeroComponent() {
           </p>
           <div className="mt-10 flex flex-col md:flex-row gap-4 justify-center gap-x-6 animate__animated animate__fadeInUp animate__delay-1s">
             <Link href="/events/create">
-              <Button className="rounded-md px-8 py-3 text-base font-semibold bg-white hover:bg-blue-50 text-primary shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 transition-all duration-300">
+              <Button className="rounded-md  bg-gradient-to-r from-blue-700 to-green-600 text-white px-8 py-3 text-base font-semibold hover:bg-blue-50  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 transition-all duration-300">
                 Create Event
               </Button>
             </Link>
             <Link href="/events/browse">
-              <Button className="rounded-md bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-all duration-300">
+              <Button className="rounded-md bg-white px-8 py-3 text-base font-semibold text-primary shadow-sm hover:bg-blue-100 transition-all duration-300">
                 Browse Events
               </Button>
             </Link>
@@ -50,7 +50,13 @@ export default function HeroComponent() {
               <div className="text-3xl font-bold">
                 <NumberTicker
                   className="text-white"
-                  value={eventSummary ? eventSummary.totalParticipants : 1}
+                  value={
+                    eventSummary
+                      ? eventSummary.totalParticipants > 0
+                        ? eventSummary.totalParticipants
+                        : 0
+                      : 1
+                  }
                 />
               </div>
               <div className="text-sm ">Participants</div>

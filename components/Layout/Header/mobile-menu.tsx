@@ -35,9 +35,6 @@ export default function MobileMenu() {
             >
               Create Event
             </Link>
-            <Link href="/events/create" onClick={() => setPopoverOpen(false)}>
-              Get Started
-            </Link>
           </div>
         </PopoverContent>
       </Popover>

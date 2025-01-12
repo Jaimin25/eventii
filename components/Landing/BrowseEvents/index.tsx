@@ -5,7 +5,7 @@ import React from "react";
 
 export default function BrowserEventsComponent() {
   return (
-    <section id="browseEvents" className="py-16 bg-gray-50">
+    <section id="browseEvents" className="py-16">
       <div className="flex flex-col w-full mx-auto px-4 items-center justify-center">
         <div className="mb-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
